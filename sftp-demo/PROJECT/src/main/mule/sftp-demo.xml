@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+	xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<sftp:config name="SFTP_Config" doc:name="SFTP Config" doc:id="5ad47714-b4ab-40f7-af96-9701648071e3" >
+		<sftp:connection workingDir="covid-cases" host="us-east-1.sftpcloud.io" username="88546441c62e476a9b6bc9ec83f5b884" password="mK9xJWSYHEmsauTaCSNq72Qbk30M9TpZ" />
+	</sftp:config>
+	<flow name="sftp-demo" doc:id="4eff1d71-8ca6-4980-b5b2-f8397444aee4" >
+		<sftp:listener doc:name="On New or Updated File" doc:id="bbba347e-12b7-45e3-b1e3-6488133865aa" config-ref="SFTP_Config" directory="new" renameTo='#["cvd-cases" ++ now() as String ++ ".csv"]'>
+			<scheduling-strategy >
+				<cron expression="0 59 23 ? * FRI *" />
+			</scheduling-strategy>
+			<sftp:matcher filenamePattern='cvd-cases.csv' />
+		</sftp:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="31004cf6-44cb-4f30-b659-d681a7ee403f" message="Received file"/>
+		<ee:transform doc:name="Transform Message" doc:id="cd8c99be-21ae-4612-876d-3d9e3d229273" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	source: payload01.source,
+	caseType: payload01."case-type",
+	firstName: payload01."first-name",
+	lastName: payload01."last-name",
+	phone: payload01.phone,
+	email: payload01.email,
+	dateOfBirth: payload01.dob,
+	nationalID: payload01."national-id",
+	nationalIDType: payload01."national-id-type",
+	address: {
+		streetAddress: payload01."street-address",
+		city: payload01.city,
+		state: payload01.state,
+		postal: payload01.postal,
+		country: payload01.country
+	}
+}
+
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="a306e3e9-49ce-497b-8abf-3ad3c0d72692" message="Completed flow"/>
+	</flow>
+</mule>

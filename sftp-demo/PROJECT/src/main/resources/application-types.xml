@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="covid-cases-csv-meta-data" format="csv">
+      <types:shape format="weave" example="examples/cvd-cases.csv"><![CDATA[%dw 2.0
+
+type covid_cases_csv_meta_data = Array<{|  "﻿source": String,   "case-type": String,   "first-name": String,   "last-name": String,   phone: String,   email: String,   dob: String,   "national-id": String,   "national-id-type": String,   "street-address": String,   city: String,   state: String,   postal: String,   country: String|}> {"header": "true",
+"headerLineNumber": "0",
+"isQuotedString": "false"}
+
+]]></types:shape>
+      <types:properties>
+        <types:property name="headerLineNumber" value="0"/>
+        <types:property name="header" value="true"/>
+        <types:property name="isQuotedString" value="false"/>
+      </types:properties>
+    </types:type>
+    <types:type name="covid-cases-json-meta-data" format="json">
+      <types:shape format="weave" example="examples/register-covid-case-request-payload-1.json"><![CDATA[%dw 2.0
+
+type covid_cases_json_meta_data = Array<{|  source: String,   caseType: String,   firstName: String,   lastName: String,   phone: String,   email: String,   dateOfBirth: String,   nationalID: String,   nationalIDType: String,   address: {|    streetAddress: String,     city: String,     state: String,     postal: String,     country: String  |}|}> {"example": "[{\\\"source\\\":\\\"Hospital1\\\",\\\"caseType\\\":\\\"positive\\\",\\\"firstName\\\":\\\"John\\\",\\\"lastName\\\":\\\"Nixon\\\",\\\"phone\\\":\\\"541-754-3010\\\",\\\"email\\\":\\\"john@gmail.com\\\",\\\"dateOfBirth\\\":\\\"1989-04-26\\\",\\\"nationalID\\\":\\\"209-49-6193\\\",\\\"nationalIDType\\\":\\\"SSN\\\",\\\"address\\\":{\\\"streetAddress\\\":\\\"1600 Pennsylvania Avenue NW\\\",\\\"city\\\":\\\"Dallas\\\",\\\"state\\\":\\\"TX\\\",\\\"postal\\\":\\\"20500\\\",\\\"country\\\":\\\"USA\\\"}}]"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="who-excel-meta-data" format="excel">
+      <types:shape format="weave"><![CDATA[%dw 2.0
+
+type who_excel_meta_data = {|
+  cases?: Array<{|    source: String,     "case-type": String,     email: String,     dob: String  |}>, 
+  contact?: Array<{|    "first-name": String,     "last-name": String,     phone: String,     column_3: String  |}>
+|}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#cd8c99be-21ae-4612-876d-3d9e3d229273">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="covid-cases-csv-meta-data"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="covid-cases-json-meta-data"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#4509eec5-48aa-4e18-af11-a09ce2efebca">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="covid-cases-csv-meta-data"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="who-excel-meta-data"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

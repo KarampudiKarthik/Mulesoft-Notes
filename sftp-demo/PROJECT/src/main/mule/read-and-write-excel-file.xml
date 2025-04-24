@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="d7f5da7b-5629-4ace-8dbe-be844b464fda" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="674d32ee-2d28-422c-b573-6bd12c00d4b4" />
+	<flow name="read-and-write-excel-fileFlow" doc:id="0bd41285-8a27-403e-af36-23efb4fb1056" >
+		<http:listener doc:name="Listener" doc:id="9fd09341-1410-4377-a661-c334d798b739" config-ref="HTTP_Listener_config" path="/file-demo"/>
+		<logger level="INFO" doc:name="Start Log" doc:id="0479c27d-0459-418a-bee3-d3e206d8d05a" message="Started flow"/>
+		<file:read doc:name="Read" doc:id="e9759989-6d69-4035-a428-552419f73992" config-ref="File_Config" path="/Users/ravikanthsomireddy/Desktop/cvd-cases.csv"/>
+		<ee:transform doc:name="Transform Message" doc:id="4509eec5-48aa-4e18-af11-a09ce2efebca" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xlsx
+---
+{
+	cases: payload map ( payload01 , indexOfPayload01 ) -> {
+		source: payload01.source,
+		"case-type": payload01."case-type",
+		email: payload01.email,
+		dob: payload01.dob
+	},
+	contact: payload map ( payload01 , indexOfPayload01 ) -> {
+		"first-name": payload01."first-name",
+		"last-name": payload01."last-name",
+		phone: payload01.phone,
+		email: payload01.email
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<sftp:write doc:name="Write" doc:id="1bdbcf90-9125-4a5c-83ba-65bc9672ec57" config-ref="SFTP_Config" path='#["/covid-cases/upload/cvd-cases" ++ now() as String ++ ".xlsx"]'/>
+		<logger level="INFO" doc:name="Logger" doc:id="e7f6e59b-bd92-4ffe-9011-795a5275fb39" />
+	</flow>
+</mule>

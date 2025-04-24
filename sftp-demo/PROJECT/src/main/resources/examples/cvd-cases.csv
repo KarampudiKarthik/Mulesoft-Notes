@@ -1,0 +1,7 @@
+﻿source,case-type,first-name,last-name,phone,email,dob,national-id,national-id-type,street-address,city,state,postal,country
+dg-states,positive,John,Nixon,541-754-3010,john@gmail.com,1992-11-26,209-49-6193,SSN,1600 Pennsylvania Avenue NW,Washington,DC,20500,USA
+dg-states,positive,Stefen,Sam,541-754-3231,stefan@gmail.com,1985-10-14,408-49-6793,SSN,2970 Hiney Road Pennsylvania Avenue NW,Washington,DC,20500,USA
+dg-states,vaccinated,William,Smith,764-782-8373,william@gmail.com,1983-12-18,763-68-9854,SSN,667 Central Avenue,Jersey City,New Jersey,7306,USA
+dg-states,positive,James,Brown,532-756-7834,james@gmail.com,1990-10-12,678-37-9876,SSN,317 Romrog Way,Kearney,Nebraska,68847,USA
+dg-states,vaccinated,Henry,Miller,548-874-2727,henry@gmail.com,1992-11-23,653-72-8765,SSN,2817 Sycamore Road,Hood River,Oregon,97031,USA
+dg-states,positive,Joseph,Clark,678-987-4567,joseph@gmail.com,1976-12-05,677-78-4566,SSN,4080 Pratt Avenue,Tukwila,DC,98168,USA
